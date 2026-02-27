@@ -1,0 +1,25 @@
+# render.yaml
+# -----------
+# Render Blueprint for PhishGuard backend.
+# Deploy at: https://dashboard.render.com/blueprints
+
+services:
+  - type: web
+    name: phishguard-backend
+    runtime: python
+    region: oregon
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt && chmod +x render_startup.sh
+    startCommand: bash render_startup.sh
+    envVars:
+      - key: CORS_ORIGINS
+        value: https://phishguard.vercel.app
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: PYTHONUNBUFFERED
+        value: "1"
+    disk:
+      name: model-storage
+      mountPath: /opt/render/project/src/models
+      sizeGB: 1

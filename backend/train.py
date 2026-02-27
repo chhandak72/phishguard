@@ -218,6 +218,41 @@ def _map_label(series: pd.Series, source_name: str) -> pd.Series:
 # Dataset loading
 # ---------------------------------------------------------------------------
 
+# Public mirror datasets (Hugging Face raw CSV files, permissively licensed)
+_REMOTE_DATASETS: list[dict] = [
+    {
+        "url": "https://huggingface.co/datasets/talby/spamassassin/resolve/main/data/spam_ham.csv",
+        "filename": "spamassassin_remote.csv",
+    },
+    {
+        "url": "https://raw.githubusercontent.com/MWiechmann/enron_spam_data/master/enron_spam_data.csv",
+        "filename": "enron_remote.csv",
+    },
+]
+
+
+def _download_fallback_datasets(data_dir: Path) -> None:
+    """Download public datasets into *data_dir* if no local CSVs exist."""
+    existing_csvs = list(data_dir.glob("*.csv"))
+    if existing_csvs:
+        return  # local datasets are present, nothing to do
+
+    import urllib.request
+
+    data_dir.mkdir(parents=True, exist_ok=True)
+    log.info("No local datasets found – downloading fallback datasets...")
+    for entry in _REMOTE_DATASETS:
+        dest = data_dir / entry["filename"]
+        if dest.exists():
+            log.info("  Already cached: %s", dest.name)
+            continue
+        log.info("  Downloading %s → %s", entry["url"], dest.name)
+        try:
+            urllib.request.urlretrieve(entry["url"], dest)
+            log.info("  ✓ Saved %s (%.1f MB)", dest.name, dest.stat().st_size / 1e6)
+        except Exception as exc:
+            log.warning("  ✗ Failed to download %s: %s", entry["url"], exc)
+
 
 def load_dataset(path: Path, debug: bool = False) -> Optional[pd.DataFrame]:
     """Load a single CSV file and normalise it to columns [subject, body, is_phish].
@@ -312,8 +347,14 @@ def load_all_datasets(
     -------
     pd.DataFrame with columns [subject, body, is_phish].
     """
+    # Download fallback datasets if nothing is available locally
+    _download_fallback_datasets(_DATA_DIR)
+    # Also include any remotely-downloaded CSVs in the search paths
+    remote_paths = [_DATA_DIR / e["filename"] for e in _REMOTE_DATASETS]
+    all_paths = list(paths) + [p for p in remote_paths if p not in paths]
+
     frames: list[pd.DataFrame] = []
-    for p in paths:
+    for p in all_paths:
         df = load_dataset(p, debug=debug)
         if df is not None:
             if sample:
