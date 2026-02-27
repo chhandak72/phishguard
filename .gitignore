@@ -1,0 +1,55 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.venv/
+venv/
+env/
+*.egg
+
+# ML models (large binary files)
+backend/models/*.joblib
+backend/models/*.pkl
+backend/models/*.bin
+# But keep the directory
+!backend/models/.gitkeep
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# Node
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
+.vite/
+
+# pytest / coverage
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+*.lcov
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.bak
+
+# Datasets (too large for git)
+data/*.csv

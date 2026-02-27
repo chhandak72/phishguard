@@ -1,0 +1,26 @@
+{
+  "trained_at": "2026-02-27T10:22:29.197004+00:00",
+  "model_version": "1.0.0",
+  "n_train": 7668,
+  "n_val": 2556,
+  "n_test": 2557,
+  "n_tfidf_features": 20000,
+  "n_splits": 5,
+  "tuned": false,
+  "sampled": true,
+  "val_accuracy": 0.9484,
+  "val_roc_auc": 0.9889,
+  "test_accuracy": 0.9327,
+  "test_roc_auc": 0.9789,
+  "test_confusion_matrix": [
+    [
+      1345,
+      107
+    ],
+    [
+      65,
+      1040
+    ]
+  ],
+  "git_commit": "unknown"
+}

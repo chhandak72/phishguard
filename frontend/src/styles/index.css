@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Base ─────────────────────────────────────────────────── */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply bg-slate-50 text-slate-800 font-sans antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+/* ── Components ───────────────────────────────────────────── */
+@layer components {
+  /* Input / textarea shared style */
+  .input-field {
+    @apply w-full rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm
+           text-slate-800 placeholder-slate-400 shadow-sm
+           focus:border-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-100
+           transition-all duration-150;
+  }
+
+  /* Primary action button */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-lg bg-blue-600 px-6 py-3 text-sm font-semibold text-white
+           shadow-sm hover:bg-blue-700 active:bg-blue-800
+           focus:outline-none focus:ring-2 focus:ring-blue-300
+           disabled:opacity-50 disabled:cursor-not-allowed
+           transition-all duration-150;
+  }
+
+  /* Secondary / outline button */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium
+           text-slate-600 shadow-sm hover:bg-slate-50 active:bg-slate-100
+           focus:outline-none focus:ring-2 focus:ring-slate-200
+           transition-all duration-150;
+  }
+
+  /* Card wrapper */
+  .card {
+    @apply rounded-xl border border-slate-200 bg-white shadow-sm;
+  }
+
+  /* Risk badge colours */
+  .badge-low {
+    @apply bg-emerald-50 text-emerald-700 border border-emerald-200;
+  }
+
+  .badge-medium {
+    @apply bg-amber-50 text-amber-700 border border-amber-200;
+  }
+
+  .badge-high {
+    @apply bg-red-50 text-red-700 border border-red-200;
+  }
+
+  /* Label badge */
+  .label-phish {
+    @apply bg-red-500 text-white;
+  }
+
+  .label-legit {
+    @apply bg-emerald-500 text-white;
+  }
+}
+
+/* ── Utilities ────────────────────────────────────────────── */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

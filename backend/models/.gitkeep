@@ -1,0 +1,9 @@
+# This directory stores the trained model artifacts.
+
+# Generated files are excluded from git (see .gitignore).
+
+# Run `python backend/train.py` to generate:
+
+# - stacking_pipeline.joblib
+
+# - model_metadata.json
