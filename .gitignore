@@ -17,6 +17,7 @@ backend/models/*.pkl
 backend/models/*.bin
 # But keep the directory
 !backend/models/.gitkeep
+!backend/models/stacking_pipeline.joblib
 
 # Environment variables
 .env
