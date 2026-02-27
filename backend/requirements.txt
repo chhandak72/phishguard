@@ -1,7 +1,6 @@
 # ============================================================
 # PhishGuard Backend – Python dependencies
-# Pinned for Python 3.11 (Docker).  Locally on Python 3.13
-# the resolver will pick compatible newer versions automatically.
+# Production-safe (no heavy build deps that fail on Render free tier)
 # ============================================================
 
 # Web framework
@@ -19,21 +18,14 @@ joblib>=1.4.0
 numpy>=1.26.0
 pandas>=2.1.0
 scipy>=1.11.0
+pyarrow>=14.0.0
 
 # Text processing
 nltk>=3.8.1
-
-# Explainability (optional but recommended)
-shap>=0.45.0
 
 # Utilities
 tqdm>=4.66.0
 requests>=2.32.0
 
-# Development / testing
-pytest>=8.0.0
-pytest-asyncio>=0.23.0
-httpx>=0.27.0           # needed by TestClient
-
-# Code quality (dev only – can remove in production image)
-flake8>=7.0.0
+# Testing (needed by /health check test only)
+httpx>=0.27.0

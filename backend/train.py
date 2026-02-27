@@ -114,7 +114,9 @@ log = logging.getLogger("phishguard.train")
 # ---------------------------------------------------------------------------
 # Dataset paths – resolved to their actual location on this machine
 # ---------------------------------------------------------------------------
-_DATA_DIR = ROOT.parent / "data"
+# On Render, ROOT is /opt/render/project/src (the backend/ dir is the root).
+# We store downloaded data inside backend/data/ so it stays within the service.
+_DATA_DIR = ROOT / "data" if not (ROOT.parent / "data").exists() else ROOT.parent / "data"
 
 DATASET_PATHS = [
     _DATA_DIR / "spam (1).csv",
@@ -218,23 +220,30 @@ def _map_label(series: pd.Series, source_name: str) -> pd.Series:
 # Dataset loading
 # ---------------------------------------------------------------------------
 
-# Public mirror datasets (Hugging Face raw CSV files, permissively licensed)
+# Public datasets with verified working URLs
 _REMOTE_DATASETS: list[dict] = [
     {
-        "url": "https://huggingface.co/datasets/talby/spamassassin/resolve/main/data/spam_ham.csv",
-        "filename": "spamassassin_remote.csv",
+        # SMS Spam collection – 5.5k rows, v1=label(ham/spam), v2=text
+        "url": "https://raw.githubusercontent.com/mohitgupta-omg/Kaggle-SMS-Spam-Collection-Dataset-/master/spam.csv",
+        "filename": "sms_spam_remote.csv",
+        "parquet": False,
     },
     {
-        "url": "https://raw.githubusercontent.com/MWiechmann/enron_spam_data/master/enron_spam_data.csv",
-        "filename": "enron_remote.csv",
+        # SMS spam TSV mirror – same data, tab-separated, no header
+        "url": "https://raw.githubusercontent.com/justmarkham/DAT8/master/data/sms.tsv",
+        "filename": "sms_spam_tsv_remote.tsv",
+        "parquet": False,
+        "sep": "\t",
+        "header": None,
+        "names": ["v1", "v2"],
     },
 ]
 
 
 def _download_fallback_datasets(data_dir: Path) -> None:
-    """Download public datasets into *data_dir* if no local CSVs exist."""
-    existing_csvs = list(data_dir.glob("*.csv"))
-    if existing_csvs:
+    """Download public datasets into *data_dir* if no local CSVs/tsvs exist."""
+    existing = list(data_dir.glob("*.csv")) + list(data_dir.glob("*.tsv")) + list(data_dir.glob("*.parquet"))
+    if existing:
         return  # local datasets are present, nothing to do
 
     import urllib.request
@@ -273,10 +282,28 @@ def load_dataset(path: Path, debug: bool = False) -> Optional[pd.DataFrame]:
         return None
 
     log.info("Loading: %s", path)
+    # Look up any special read options for this remote file
+    _read_opts = {e["filename"]: e for e in _REMOTE_DATASETS}
+    opts = _read_opts.get(path.name, {})
     try:
-        df = pd.read_csv(path, encoding="utf-8", low_memory=False)
-    except UnicodeDecodeError:
-        df = pd.read_csv(path, encoding="latin-1", low_memory=False)
+        if path.suffix == ".parquet":
+            df = pd.read_parquet(path)
+        elif path.suffix == ".tsv" or opts.get("sep") == "\t":
+            df = pd.read_csv(
+                path,
+                sep=opts.get("sep", "\t"),
+                header=opts.get("header", None),
+                names=opts.get("names", ["v1", "v2"]),
+                encoding="utf-8",
+            )
+        else:
+            try:
+                df = pd.read_csv(path, encoding="utf-8", low_memory=False)
+            except UnicodeDecodeError:
+                df = pd.read_csv(path, encoding="latin-1", low_memory=False)
+    except Exception as exc:
+        log.warning("Failed to read %s: %s – skipping.", path.name, exc)
+        return None
 
     log.info("  Columns: %s", list(df.columns))
     log.info("  Shape  : %s", df.shape)
@@ -349,7 +376,7 @@ def load_all_datasets(
     """
     # Download fallback datasets if nothing is available locally
     _download_fallback_datasets(_DATA_DIR)
-    # Also include any remotely-downloaded CSVs in the search paths
+    # Also include any remotely-downloaded files in the search paths
     remote_paths = [_DATA_DIR / e["filename"] for e in _REMOTE_DATASETS]
     all_paths = list(paths) + [p for p in remote_paths if p not in paths]
 
