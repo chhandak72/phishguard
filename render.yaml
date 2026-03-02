@@ -20,9 +20,5 @@ services:
         value: 3.11.0
       - key: PYTHONUNBUFFERED
         value: "1"
-    disk:
-      name: model-storage
-      mountPath: /opt/render/project/src/models
-      sizeGB: 1
 
 
