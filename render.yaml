@@ -25,14 +25,4 @@ services:
       mountPath: /opt/render/project/src/models
       sizeGB: 1
 
-  - type: static
-    name: phishguard-frontend
-    region: oregon
-    plan: free
-    rootDir: frontend
-    buildCommand: npm --prefix frontend run build
-    publishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        # During Render setup replace this with the backend's public URL that Render provides
-        value: https://phishguard-backend.onrender.com
+
